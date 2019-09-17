@@ -29,9 +29,12 @@ Either you can use `glimpse` like before, or `head` to do this.
 
 ```{r load-data}
 library(tidyverse)
-library(openintro)
-head(fastfood)
 ```
+
+```{r}
+read_csv("\cloud\project\")
+```
+
 
 You'll see that for every observation there are 17 measurements, many of which are
 nutritional facts.
@@ -39,7 +42,7 @@ nutritional facts.
 You'll be focusing on just three columns to get started: restaurant, calories, 
 calories from fat.
 
-Let's first focus on just products from McDonalds and Dairy Queen.
+Let's first focus on just products from McDonalds and Dairy Queen.  
 
 ```{r male-female}
 mcdonalds <- fastfood %>%
@@ -48,9 +51,13 @@ dairy_queen <- fastfood %>%
   filter(restaurant == "Dairy Queen")
 ```
 
+1.  What did we just do with the `filter` function?  (Hint: check out your new data frames)
+
+
+
 1.  Make a plot (or plots) to visualize the distributions of the amount of calories
-from fat of the options from these two restaurants.  How do their centers, shapes,
-and spreads compare?
+from fat of the options from these two restaurants.  Then apply the summary function to obtain 
+quantify the distribution. Discuss their centers, shapes, and spreads compare?
 
 ## The normal distribution
 
