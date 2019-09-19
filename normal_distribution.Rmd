@@ -2,15 +2,18 @@
 title: "The normal distribution"
 output:
   html_document:
-    css: ../lab.css
+    css: lab.css
     highlight: pygments
     theme: cerulean
     toc: true
     toc_float: true
 ---
 
-```{r echo = FALSE}
-knitr::opts_chunk$set(eval = FALSE)
+```{r echo=F, message=F}
+library(tidyverse)
+library(openintro)
+library(plotly)
+library(lubridate)
 ```
 
 In this lab, you'll investigate the probability distribution that is most central
@@ -19,46 +22,40 @@ nearly normal, that opens the door to many powerful statistical methods.  Here
 we'll use the graphical tools of R to assess the normality of our data and also 
 learn how to generate random numbers from a normal distribution.
 
-## The Data
+## Normal Distribution
+Statistician like to create simplified models to represent real world data.  The normal distribution function is a model used to represent a numerical variable with  **bell shape** distribution.  The advantage of the normal distribution function is that only 2 parameters are needed represent the entire distribution.
 
-This week you'll be working with fast food data.  This data set contains data on
-515 menu items from some of the most popular fast food restaurants worldwide.
-Let's take a quick peek at the first few rows of the data.
+The normal distribution function is an exponential function of base **e**
+    \[
+    f(x,\mu, \sigma) = \frac{e^\frac{-(x-\mu)^2}{2\sigma^2}}{\sigma\sqrt{2\pi}}
+    \]
 
-Either you can use `glimpse` like before, or `head` to do this.
 
-```{r load-data}
-library(tidyverse)
+## Data
+We will be looking at the `weight` variable from Lab 3 from North Carolina birth data set.
+```{r, message=F, echo=FALSE}
+nc <- read.csv("/cloud/project/nc.csv")
 ```
+The first step in deciding if your variable can be modeled with a normal distribution is to see if the distribution is bell shaped.  We'll use the histogram will show the distribution.  Let's also color our `weight` by `premie` to check if the levels of **premie** and **full term** have different distributions.  
 
 ```{r}
-read_csv("\cloud\project\")
+ggplot(nc, aes(weight, fill=premie))+
+  geom_histogram(binwidth=0.25,color="white")
+```
+The long left tail is concerning, let's restrict our model to just include full-term births.
+
+1.  Create a new data frame of `nc_ft` containing only fullterm babies.
+```{r}
+nc_ft <- nc %>% 
+  filter(premie=="full term")
 ```
 
-
-You'll see that for every observation there are 17 measurements, many of which are
-nutritional facts.
-
-You'll be focusing on just three columns to get started: restaurant, calories, 
-calories from fat.
-
-Let's first focus on just products from McDonalds and Dairy Queen.  
-
-```{r male-female}
-mcdonalds <- fastfood %>%
-  filter(restaurant == "McDonalds")
-dairy_queen <- fastfood %>%
-  filter(restaurant == "Dairy Queen")
+2.  Create a new histogram for the `weight` variable of `nc_ft`. Describe on the distribution.
+```{r}
+ggplot(nc_ft, aes(weight ))+
+  geom_histogram(binwidth=0.25,color="white", fill="steelblue")+
+  scale_x_continuous(limits=c(3, 12), breaks=c(seq(3,12, by=1)))
 ```
-
-1.  What did we just do with the `filter` function?  (Hint: check out your new data frames)
-
-
-
-1.  Make a plot (or plots) to visualize the distributions of the amount of calories
-from fat of the options from these two restaurants.  Then apply the summary function to obtain 
-quantify the distribution. Discuss their centers, shapes, and spreads compare?
-
 ## The normal distribution
 
 In your description of the distributions, did you use words like *bell-shaped* 
@@ -68,16 +65,18 @@ distribution.
 To see how accurate that description is, you can plot a normal distribution curve 
 on top of a histogram to see how closely the data follow a normal distribution. 
 This normal curve should have the same mean and standard deviation as the data. 
-You'll be focusing on calories from fat from Dairy Queen products, so let's store
-them as a separate object and then calculate some statistics that will be referenced 
-later. 
 
-```{r female-hgt-mean-sd}
-dqmean <- mean(dairy_queen$cal_fat)
-dqsd   <- sd(dairy_queen$cal_fat)
+Step 1 - Calculate Mean and Standard Deviation of `nc_ft`'s `weight` using `mean` and `sd` functions.
+```{r}
+mean_nc = mean(nc_ft$weight)
+sd_nc = sd(nc_ft$weight)
+mean_nc
+sd_nc
 ```
 
-Next, you make a density histogram to use as the backdrop and use the `lines` 
+Step 2 - Use calculated `mean_nc` and `sd_nc` to create the normal curve
+
+You make a density histogram to use as the backdrop and use the `lines` 
 function to overlay a normal probability curve. The difference between a 
 frequency histogram and a density histogram is that while in a frequency 
 histogram the *heights* of the bars add up to the total number of observations, 
@@ -90,11 +89,13 @@ same exact shape; they only differ in their y-axis. You can verify this by
 comparing the frequency histogram you constructed earlier and the density
 histogram created by the commands below.
 
-```{r hist-height}
-ggplot(data = dairy_queen, aes(x = cal_fat)) +
-        geom_blank() +
-        geom_histogram(aes(y = ..density..)) +
-        stat_function(fun = dnorm, args = c(mean = dqmean, sd = dqsd), col = "tomato")
+```{r}
+ggplot(nc_ft, aes(x=weight)) +
+  geom_blank() +
+  geom_histogram(binwidth=0.25,color="white", fill="lightblue", aes(y=..density..)) +
+  stat_function(fun = dnorm, args = c(mean = mean_nc, sd = sd_nc), col = "tomato")+
+  scale_x_continuous(limits=c(3, 12), breaks=c(seq(3,12, by=1)))+
+  geom_vline(xintercept=c(mean_nc,mean_nc+sd_nc, mean_nc+2*sd_nc, mean_nc+3*sd_nc, mean_nc-sd_nc, mean_nc-2*sd_nc, mean_nc-3*sd_nc), linetype="dashed")
 ```
 
 After initializing a blank plot with `geom_blank()`, the `ggplot2` package (within
@@ -118,11 +119,12 @@ constructing a normal probability plot, also called a normal Q-Q plot for
 "quantile-quantile".
 
 ```{r qq}
-ggplot(data = dairy_queen, aes(sample = cal_fat)) + 
-  geom_line(stat = "qq")
+ggplot(data = nc_ft, aes(sample = weight)) + 
+  geom_point(stat = "qq", color="steelblue", size=0.5)
 ```
 
-This time, you can use the `geom_line()` layer, while specifying that you will 
+
+This time, you can use the `geom_point()` layer, while specifying that you will 
 be creating a Q-Q plot with the `stat` argument. It's important to note that here,
 instead of using `x` instead `aes()`, you need to use `sample`.
 
@@ -134,29 +136,30 @@ plot would look identical. A data set that is nearly normal will result in a
 probability plot where the points closely follow a diagonal line.  Any deviations
 from normality leads to deviations of these points from that line.
 
-The plot for Dairy Queen's calories from fat shows points that tend to follow the
-line but with some errant points towards the upper tail.  You're left with the same
-problem that we encountered with the histogram above: how close is close enough?
+You're left with the same problem that we encountered with the histogram above: how close is close enough?
 
 A useful way to address this question is to rephrase it as: what do probability 
 plots look like for data that I *know* came from a normal distribution?  We can 
 answer this by simulating data from a normal distribution using `rnorm`.
 
 ```{r sim-norm}
-sim_norm <- rnorm(n = nrow(dairy_queen), mean = dqmean, sd = dqsd)
+sim_norm <- data.frame(sim_values = rnorm(n = nrow(nc_ft), mean = mean_nc, sd = sd_nc))
 ```
 
 The first argument indicates how many numbers you'd like to generate, which we 
-specify to be the same number of menu items in the `dairy_queen` data set using the 
+specify to be the same number of menu items in the `nc_ft` data set using the 
 `nrow()` function.  The last two arguments determine the mean and standard 
 deviation of the normal distribution from which the simulated sample will be 
 generated.  You can take a look at the shape of our simulated data set, `sim_norm`, 
 as well as its normal probability plot.
 
-3.  Make a normal probability plot of `sim_norm`.  Do all of the points fall on 
-    the line?  How does this plot compare to the probability plot for the real 
-    data? (Since `sim_norm` is not a dataframe, it can be put directly into the 
-    `sample` argument and the `data` argument can be dropped.)
+3.  Below is a comparison of the simulated data (in red) along with the `nc_ft` real data. Do all of the points fall on the line?  How does this plot compare to the probability plot for the real data? 
+    
+```{r}
+ggplot(data = nc_ft, aes(sample = weight)) + 
+  geom_point(stat = "qq", color = "steelblue", size=0.5)+
+  geom_line(data=sim_norm,aes(sample=sim_values),stat = "qq", color="tomato")
+```
 
 Even better than comparing the original plot to a single plot generated from a 
 normal distribution is to compare it to many more plots using the following 
@@ -165,15 +168,27 @@ left corner, and the Q-Q plots of 8 different simulated normal data.  It may be
 helpful to click the zoom button in the plot window.
 
 ```{r qqnormsim}
-qqnormsim(sample = cal_fat, data = dairy_queen)
+source("http://www.jkarreth.net/files/qqnormsim.R")  ## loading the qqnormsim function
+qqnormsim(nc_ft$weight)
 ```
 
-4.  Does the normal probability plot for the calories from fat look similar to the plots 
+4.  Does the normal probability plot for the `weight`  look similar to the plots 
     created for the simulated data?  That is, do the plots provide evidence that the
-    female heights are nearly normal?
+    `weight` is nearly normal?
 
-5.  Using the same technique, determine whether or not the calories from McDonald's
-    menu appear to come from a normal distribution.
+
+
+## Practice on your own
+```{r, message=F, echo=FALSE}
+fastfood <- read_csv("https://docs.google.com/spreadsheets/d/e/2PACX-1vRcnBevQlkkgh_-nLRW90EoMxKp2b3PE76c_VEd1Die7Unz_hzSYG15svJXO6alodmD7FMil0hQgr9p/pub?gid=0&single=true&output=csv")
+
+mlb_curent <- read_csv("https://docs.google.com/spreadsheets/d/e/2PACX-1vQ3__apykV5jCuJptVMUdh0WIHjJ7laabz6ahq_Zv-Az20CFyhIQLG2DmsJbpNh6B8eblVUAkOj1wxE/pub?gid=0&single=true&output=csv")
+
+sf_19_mar <- read_csv("https://docs.google.com/spreadsheets/d/e/2PACX-1vRg68nwg3HbpRCj1Ufeak7aBhV1GCKLBfyCSawdd-SChiUmkuY36MUNvV51_jCq266hWnlPabWpe7NH/pub?gid=0&single=true&output=csv")
+
+nc <- read.csv("/cloud/project/nc.csv")
+```
+
 
 ## Normal probabilities
 
@@ -192,7 +207,7 @@ by calculating a Z score and consulting a Z table (also called a normal probabil
 table).  In R, this is done in one step with the function `pnorm()`.
 
 ```{r pnorm}
-1 - pnorm(q = 600, mean = dqmean, sd = dqsd)
+1 - pnorm(q = 8, mean = mean_nc, sd = sd_nc)
 ```
 
 Note that the function `pnorm()` gives the area under the normal curve below a 
@@ -206,25 +221,33 @@ need to determine how many observations fall above 600 then divide this number
 by the total sample size.
 
 ```{r probability}
-dairy_queen %>% 
-  filter(cal_fat > 600) %>%
-  summarise(percent = n() / nrow(dairy_queen))
+nc_ft %>% 
+  filter(weight > 8) %>%
+  summarise(percent = n() / nrow(nc_ft))
 ```
 
 Although the probabilities are not exactly the same, they are reasonably close. 
 The closer that your distribution is to being normal, the more accurate the 
 theoretical probabilities will be.
 
+* * *
+
+## More Practice
+
+`gained` and `mage`
+
+```{r}
+ggplot(nc_ft, aes(gained))+
+  geom_histogram(binwidth=5,color="white", fill="steelblue")+
+  scale_x_continuous(limits=c(0,100), breaks=c(seq(0,100, by=5)))
+```
+
 6.  Write out two probability questions that you would like to answer about any 
     of the restaurants in this dataset.  Calculate those probabilities using both
     the theoretical normal distribution as well as the empirical distribution 
     (four probabilities in all).  Which one had a closer agreement between the 
     two methods?
-
-* * *
-
-## More Practice
-
+    
 7.  Now let's consider some of the other variables in the dataset.  Out of all the
     different restaurants, which ones' distribution is the closest to normal for sodium?
    
@@ -236,6 +259,23 @@ theoretical probabilities will be.
     carbohydrates from a restaurant of your choice.  Based on this normal 
     probability plot, is this variable left skewed, symmetric, or right skewed?  
     Use a histogram to confirm your findings.
+
+```{r}
+ggplot(mlb_curent, aes(BA))+
+  geom_histogram(binwidth= .01, color="white", fill="steelblue")+
+  geom_density()
+```
+
+```{r}
+p<-ggplot(mlb_curent, aes(BA))+
+  geom_histogram(binwidth=0.005, color="white", fill="steelblue")
+ggplotly(p)
+```
+
+```{r}
+ggplot(mlb_curent, aes(BA))+
+  geom_dotplot(binwidth=0.005)
+```
 
 
 
