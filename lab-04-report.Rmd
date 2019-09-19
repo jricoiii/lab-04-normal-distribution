@@ -21,7 +21,24 @@ nc_ft <- nc %>%
   filter(premie=="full term")
 ```
 
-1.  Describe the distribution (shape, center, variation)
+Four Normal Distributions with same means of 80, and standard deviations of 5, 10 and 20.
+```{r echo=F,warning=FALSE}
+  ggplot(data = data.frame(x = c(0, 20)), aes(x)) +
+  geom_blank() +
+  stat_function(fun = dnorm, args = c(mean = 80, sd = 5), col = "tomato")+
+  stat_function(fun = dnorm, args = c(mean = 80, sd = 10), col = "forestgreen")+
+  stat_function(fun = dnorm, args = c(mean = 80, sd = 20), col = "orange")+
+  scale_x_continuous(limits=c(0, 150), breaks=c(seq(0,150, by=10)))
+```
+
+1.  Match the colors to the appropiate Normal Distribution.
+   
+    N(80,5) is  
+    N(80,10) is  
+    N(80,20) is  
+
+
+2.  Describe the distribution (shape, center, variation)
 
 ```{r, warning=FALSE,echo=F }
 ggplot(nc_ft, aes(weight ))+
@@ -29,7 +46,7 @@ ggplot(nc_ft, aes(weight ))+
   scale_x_continuous(limits=c(3, 12), breaks=c(seq(3,12, by=1)))
 ```
 
-2.  Based on the this plot, does it appear that the data follow a nearly normal distribution?
+3.  Based on the this plot, does it appear that the data follow a nearly normal distribution?
 
 ```{r, echo=FALSE, warning=FALSE}
 mean_nc = mean(nc_ft$weight)
@@ -44,7 +61,7 @@ ggplot(nc_ft, aes(x=weight)) +
 ```
 
 
-3.  Below is a comparison of the simulated data (in red) along with the `nc_ft` real data. Do all of the points fall on the line?  How does this plot compare to the probability plot for the real data? 
+4.  Below is a comparison of the simulated data (in red) along with the `nc_ft` real data. Do all of the points fall on the line?  How does this plot compare to the probability plot for the real data? 
 
 ```{r, echo=F}
 sim_norm <- data.frame(sim_values = rnorm(n = nrow(nc_ft), mean = mean_nc, sd = sd_nc))
@@ -54,7 +71,7 @@ ggplot(data = nc_ft, aes(sample = weight)) +
   geom_line(data=sim_norm,aes(sample=sim_values),stat = "qq", color="tomato")
 ```
 
-4.  Does the normal probability plot for the `weight`  look similar to the 8 plots 
+5.  Does the normal probability plot for the `weight`  look similar to the 8 plots 
     created for the simulated data?  That is, do the plots provide evidence that the
     `weight` is nearly normal?
     
@@ -63,7 +80,7 @@ source("http://www.jkarreth.net/files/qqnormsim.R")  ## loading the qqnormsim fu
 qqnormsim(nc_ft$weight)
 ```
 
-5.  Use both methods above to determine the probability that for a birth `weight` less than 7 pounds. Comment on why they are differeny (Hint: look at your graphics)
+6.  Use both methods above to determine the probability that for a birth `weight` less than 7 pounds. Comment on why they are differeny (Hint: look at your graphics)
 
 **More Practice**
 
@@ -93,9 +110,9 @@ ggplot(data = nc_ft, aes(sample = weight)) +
 
 Analysize `mage` and `gained` using the 2 steps above and decide if they can be modeled with the Normal Distribution.  
 
-6.  Complete the analysis outlined above for `mage` and make a decision if `mage` can be modeled with the Normal Distribution (i.e., Step 1 and Step 2).  Test your decision by calculating the probability that a mother's age is less than 21.
+7.  Complete the analysis outlined above for `mage` and make a decision if `mage` can be modeled with the Normal Distribution (i.e., Step 1 and Step 2).  Test your decision by calculating the probability that a mother's age is less than 21.
 
-7.  Complete the analysis outlined above for `gained` and make a decision if `gained` can be modeled with the Normal Distribution.  Test your decision by calculating the probability that a mother's weight gained is more than 40.
+8.  Complete the analysis outlined above for `gained` and make a decision if `gained` can be modeled with the Normal Distribution.  Test your decision by calculating the probability that a mother's weight gained is more than 40.
 
 
 

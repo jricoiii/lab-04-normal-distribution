@@ -28,6 +28,32 @@ The normal distribution function is an exponential function of base **e**
     f(x,\mu, \sigma) = \frac{e^\frac{-(x-\mu)^2}{2\sigma^2}}{\sigma\sqrt{2\pi}}
     \]
 
+A Normal Distribution with mean of 80 and standard deviation of 5.
+```{r echo=F,warning=FALSE}
+  ggplot(data = data.frame(x = c(50, 100)), aes(x)) +
+  geom_blank() +
+  stat_function(fun = dnorm, args = c(mean = 80, sd = 5), col = "tomato")+
+  scale_x_continuous(limits=c(50, 100), breaks=c(seq(50,100, by=5)))
+```
+
+
+Four Normal Distributions with same means of 80, and standard deviations of 5, 10 and 20.
+```{r echo=F,warning=FALSE}
+  ggplot(data = data.frame(x = c(0, 20)), aes(x)) +
+  geom_blank() +
+  stat_function(fun = dnorm, args = c(mean = 80, sd = 5), col = "tomato")+
+  stat_function(fun = dnorm, args = c(mean = 80, sd = 10), col = "forestgreen")+
+  stat_function(fun = dnorm, args = c(mean = 80, sd = 20), col = "orange")+
+  scale_x_continuous(limits=c(0, 150), breaks=c(seq(0,150, by=10)))
+```
+
+1.  Match the colors to the appropiate Normal Distribution.
+   
+    N(80,5) is  
+    N(80,10) is  
+    N(80,20) is  
+
+
 
 ## Data
 
@@ -56,7 +82,7 @@ ggplot(nc_ft, aes(weight ))+
   scale_x_continuous(limits=c(3, 12), breaks=c(seq(3,12, by=1)))
 ```
 
-1.  Describe the above distribution (shape, center, variation)
+2.  Describe the above distribution (shape, center, variation)
 
 ## Assessing normality 
 
@@ -108,7 +134,7 @@ standard deviation as the column of babies birth weight. The argument `col` simp
 the color for the line to be drawn. If we left it out, the line would be drawn in
 black.
 
-2.  Based on the this plot, does it appear that the data follow a nearly normal 
+3.  Based on the this plot, does it appear that the data follow a nearly normal 
     distribution?
 
 
@@ -155,7 +181,7 @@ deviation of the normal distribution from which the simulated sample will be
 generated.  You can take a look at the shape of our simulated data set, `sim_norm`, 
 as well as its normal probability plot.
 
-3.  Below is a comparison of the simulated data (in red) along with the `nc_ft` real data. Do all of the points fall on the line?  How does this plot compare to the probability plot for the real data? 
+4.  Below is a comparison of the simulated data (in red) along with the `nc_ft` real data. Do all of the points fall on the line?  How does this plot compare to the probability plot for the real data? 
     
 ```{r}
 ggplot(data = nc_ft, aes(sample = weight)) + 
@@ -174,7 +200,7 @@ source("http://www.jkarreth.net/files/qqnormsim.R")  ## loading the qqnormsim fu
 qqnormsim(nc_ft$weight)
 ```
 
-4.  Does the normal probability plot for the `weight`  look similar to the plots 
+5.  Does the normal probability plot for the `weight`  look similar to the plots 
     created for the simulated data?  That is, do the plots provide evidence that the
     `weight` is nearly normal?
 
@@ -218,12 +244,12 @@ Although the probabilities are not exactly the same, they are reasonably close.
 The closer that your distribution is to being normal, the more accurate the 
 theoretical probabilities will be.
 
-5.  Use both methods above to determine the probability that for a birth `weight` less than 7 pounds. Comment on why they are differeny (Hint: look at your graphics)
+6.  Use both methods above to determine the probability that for a birth `weight` less than 7 pounds. Comment on why they are differeny (Hint: look at your graphics)
 
 
 ## More Practice
 
-We have just created a procedure to assess a quantitative variable if follows a Normal Distribution.
+We have just created a procedure to assess if a quantitative variable follows a Normal Distribution.
 
 **Step 1**: Graph a density histogram and a normal curve (with mean and sd generated from data set)
 ```{r, echo=F, warning=F}
@@ -247,14 +273,11 @@ ggplot(data = nc_ft, aes(sample = weight)) +
 
 **Decision**: If normal curve and simulated normal data are similar, the data can be approximated by a normal distribution.
 
-
-## Practice on your own
-
 Analysize `mage` and `gained` using the 2 steps above and decide if they can be modeled with the Normal Distribution.  
 
-6.  Complete the analysis outlined above for `mage` and make a decision if `mage` can be modeled with the Normal Distribution (i.e., Step 1 and Step 2).  Test your decision by calculating the probability that a mother's age is less than 21.
+7.  Complete the analysis outlined above for `mage` and make a decision if `mage` can be modeled with the Normal Distribution (i.e., Step 1 and Step 2).  Test your decision by calculating the probability that a mother's age is less than 21.
 
-7.  Complete the analysis outlined above for `gained` and make a decision if `gained` can be modeled with the Normal Distribution.  Test your decision by calculating the probability that a mother's weight gained is more than 40.
+8.  Complete the analysis outlined above for `gained` and make a decision if `gained` can be modeled with the Normal Distribution.  Test your decision by calculating the probability that a mother's weight gained is more than 40.
 
 
 <div id="license">
