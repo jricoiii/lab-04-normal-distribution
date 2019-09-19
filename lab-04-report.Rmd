@@ -1,0 +1,101 @@
+---
+title: "Lab 4 Normal Distribution"
+author: "your name"
+output:
+  html_document:
+    css: lab.css
+    highlight: pygments
+    theme: cerulean
+---
+
+```{r echo=F, message=F}
+library(tidyverse)
+library(openintro)
+library(plotly)
+```
+
+```{r, message=F, echo=FALSE}
+nc <- read.csv("/cloud/project/nc.csv")
+
+nc_ft <- nc %>% 
+  filter(premie=="full term")
+```
+
+1.  Describe the distribution (shape, center, variation)
+
+```{r, warning=FALSE,echo=F }
+ggplot(nc_ft, aes(weight ))+
+  geom_histogram(binwidth=0.25,color="white", fill="steelblue")+
+  scale_x_continuous(limits=c(3, 12), breaks=c(seq(3,12, by=1)))
+```
+
+2.  Based on the this plot, does it appear that the data follow a nearly normal distribution?
+
+```{r, echo=FALSE, warning=FALSE}
+mean_nc = mean(nc_ft$weight)
+sd_nc = sd(nc_ft$weight)
+
+ggplot(nc_ft, aes(x=weight)) +
+  geom_blank() +
+  geom_histogram(binwidth=0.25,color="white", fill="lightblue", aes(y=..density..)) +
+  stat_function(fun = dnorm, args = c(mean = mean_nc, sd = sd_nc), col = "tomato")+
+  scale_x_continuous(limits=c(3, 12), breaks=c(seq(3,12, by=1)))+
+  geom_vline(xintercept=c(mean_nc,mean_nc+sd_nc, mean_nc+2*sd_nc, mean_nc+3*sd_nc, mean_nc-sd_nc, mean_nc-2*sd_nc, mean_nc-3*sd_nc), linetype="dashed")
+```
+
+
+3.  Below is a comparison of the simulated data (in red) along with the `nc_ft` real data. Do all of the points fall on the line?  How does this plot compare to the probability plot for the real data? 
+
+```{r, echo=F}
+sim_norm <- data.frame(sim_values = rnorm(n = nrow(nc_ft), mean = mean_nc, sd = sd_nc))
+
+ggplot(data = nc_ft, aes(sample = weight)) + 
+  geom_point(stat = "qq", color = "steelblue", size=0.5)+
+  geom_line(data=sim_norm,aes(sample=sim_values),stat = "qq", color="tomato")
+```
+
+4.  Does the normal probability plot for the `weight`  look similar to the 8 plots 
+    created for the simulated data?  That is, do the plots provide evidence that the
+    `weight` is nearly normal?
+    
+```{r qqnormsim, echo=F}
+source("http://www.jkarreth.net/files/qqnormsim.R")  ## loading the qqnormsim function
+qqnormsim(nc_ft$weight)
+```
+
+5.  Use both methods above to determine the probability that for a birth `weight` less than 7 pounds. Comment on why they are differeny (Hint: look at your graphics)
+
+**More Practice**
+
+We have just created a procedure to assess a quantitative variable if follows a Normal Distribution.
+
+**Step 1**: Graph a density histogram and a normal curve (with mean and sd generated from data set)
+```{r, echo=F, warning=F}
+mean_nc = mean(nc_ft$weight)
+sd_nc = sd(nc_ft$weight)
+ggplot(nc_ft, aes(x=weight)) +
+  geom_blank() +
+  geom_histogram(binwidth=0.25,color="white", fill="lightblue", aes(y=..density..)) +
+  stat_function(fun = dnorm, args = c(mean = mean_nc, sd = sd_nc), col = "tomato")+
+  scale_x_continuous(limits=c(3, 12), breaks=c(seq(3,12, by=1)))+
+  geom_vline(xintercept=c(mean_nc,mean_nc+sd_nc, mean_nc+2*sd_nc, mean_nc+3*sd_nc, mean_nc-sd_nc, mean_nc-2*sd_nc, mean_nc-3*sd_nc), linetype="dashed")
+```
+
+**Step 2**:  Graph a QQ Plot of the actual data and simulated normal data
+```{r, echo=F}
+sim_norm <- data.frame(sim_values = rnorm(n = nrow(nc_ft), mean = mean_nc, sd = sd_nc))
+ggplot(data = nc_ft, aes(sample = weight)) + 
+  geom_point(stat = "qq", color = "steelblue", size=0.5)+
+  geom_line(data=sim_norm,aes(sample=sim_values),stat = "qq", color="tomato")
+```
+
+**Decision**: If normal curve and simulated normal data are similar, the data can be approximated by a normal distribution.
+
+Analysize `mage` and `gained` using the 2 steps above and decide if they can be modeled with the Normal Distribution.  
+
+6.  Complete the analysis outlined above for `mage` and make a decision if `mage` can be modeled with the Normal Distribution (i.e., Step 1 and Step 2).  Test your decision by calculating the probability that a mother's age is less than 21.
+
+7.  Complete the analysis outlined above for `gained` and make a decision if `gained` can be modeled with the Normal Distribution.  Test your decision by calculating the probability that a mother's weight gained is more than 40.
+
+
+

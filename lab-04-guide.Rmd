@@ -1,5 +1,5 @@
 ---
-title: "The normal distribution"
+title: "Lab 4 Normal Distribution"
 output:
   html_document:
     css: lab.css
@@ -13,7 +13,6 @@ output:
 library(tidyverse)
 library(openintro)
 library(plotly)
-library(lubridate)
 ```
 
 In this lab, you'll investigate the probability distribution that is most central
@@ -22,7 +21,6 @@ nearly normal, that opens the door to many powerful statistical methods.  Here
 we'll use the graphical tools of R to assess the normality of our data and also 
 learn how to generate random numbers from a normal distribution.
 
-## Normal Distribution
 Statistician like to create simplified models to represent real world data.  The normal distribution function is a model used to represent a numerical variable with  **bell shape** distribution.  The advantage of the normal distribution function is that only 2 parameters are needed represent the entire distribution.
 
 The normal distribution function is an exponential function of base **e**
@@ -32,31 +30,35 @@ The normal distribution function is an exponential function of base **e**
 
 
 ## Data
-We will be looking at the `weight` variable from Lab 3 from North Carolina birth data set.
+
 ```{r, message=F, echo=FALSE}
 nc <- read.csv("/cloud/project/nc.csv")
 ```
+We will be looking at the `weight` variable from Lab 3 from North Carolina birth data set.
+
 The first step in deciding if your variable can be modeled with a normal distribution is to see if the distribution is bell shaped.  We'll use the histogram will show the distribution.  Let's also color our `weight` by `premie` to check if the levels of **premie** and **full term** have different distributions.  
 
 ```{r}
 ggplot(nc, aes(weight, fill=premie))+
   geom_histogram(binwidth=0.25,color="white")
 ```
-The long left tail is concerning, let's restrict our model to just include full-term births.
 
-1.  Create a new data frame of `nc_ft` containing only fullterm babies.
+The long left tail is concerning, let's restrict our model to just include full-term births and create a new data frame of `nc_ft` containing only fullterm babies.
 ```{r}
 nc_ft <- nc %>% 
   filter(premie=="full term")
 ```
 
-2.  Create a new histogram for the `weight` variable of `nc_ft`. Describe on the distribution.
-```{r}
+Let's see the new histogram for the `weight` variable of `nc_ft`.    
+```{r, warning=FALSE, }
 ggplot(nc_ft, aes(weight ))+
   geom_histogram(binwidth=0.25,color="white", fill="steelblue")+
   scale_x_continuous(limits=c(3, 12), breaks=c(seq(3,12, by=1)))
 ```
-## The normal distribution
+
+1.  Describe the above distribution (shape, center, variation)
+
+## Assessing normality 
 
 In your description of the distributions, did you use words like *bell-shaped* 
 or *normal*?  It's tempting to say so when faced with a unimodal symmetric 
@@ -76,8 +78,8 @@ sd_nc
 
 Step 2 - Use calculated `mean_nc` and `sd_nc` to create the normal curve
 
-You make a density histogram to use as the backdrop and use the `lines` 
-function to overlay a normal probability curve. The difference between a 
+Use a density histogram as the backdrop and use the `stat_function` to overlay
+a normal probability curve. The difference between a 
 frequency histogram and a density histogram is that while in a frequency 
 histogram the *heights* of the bars add up to the total number of observations, 
 in a density histogram the *areas* of the bars add up to 1. The area of each bar
@@ -89,7 +91,7 @@ same exact shape; they only differ in their y-axis. You can verify this by
 comparing the frequency histogram you constructed earlier and the density
 histogram created by the commands below.
 
-```{r}
+```{r, warning=FALSE}
 ggplot(nc_ft, aes(x=weight)) +
   geom_blank() +
   geom_histogram(binwidth=0.25,color="white", fill="lightblue", aes(y=..density..)) +
@@ -102,7 +104,7 @@ After initializing a blank plot with `geom_blank()`, the `ggplot2` package (with
 the `tidyverse`) allows us to add additional layers. The first layer is a density 
 histogram. The second layer is a statistical function -- the density of the normal
 curve, `dnorm`. We specify that we want the curve to have the same mean and 
-standard deviation as the column of female heights. The argument `col` simply sets
+standard deviation as the column of babies birth weight. The argument `col` simply sets
 the color for the line to be drawn. If we left it out, the line would be drawn in
 black.
 
@@ -176,20 +178,6 @@ qqnormsim(nc_ft$weight)
     created for the simulated data?  That is, do the plots provide evidence that the
     `weight` is nearly normal?
 
-
-
-## Practice on your own
-```{r, message=F, echo=FALSE}
-fastfood <- read_csv("https://docs.google.com/spreadsheets/d/e/2PACX-1vRcnBevQlkkgh_-nLRW90EoMxKp2b3PE76c_VEd1Die7Unz_hzSYG15svJXO6alodmD7FMil0hQgr9p/pub?gid=0&single=true&output=csv")
-
-mlb_curent <- read_csv("https://docs.google.com/spreadsheets/d/e/2PACX-1vQ3__apykV5jCuJptVMUdh0WIHjJ7laabz6ahq_Zv-Az20CFyhIQLG2DmsJbpNh6B8eblVUAkOj1wxE/pub?gid=0&single=true&output=csv")
-
-sf_19_mar <- read_csv("https://docs.google.com/spreadsheets/d/e/2PACX-1vRg68nwg3HbpRCj1Ufeak7aBhV1GCKLBfyCSawdd-SChiUmkuY36MUNvV51_jCq266hWnlPabWpe7NH/pub?gid=0&single=true&output=csv")
-
-nc <- read.csv("/cloud/project/nc.csv")
-```
-
-
 ## Normal probabilities
 
 Okay, so now you have a slew of tools to judge whether or not a variable is 
@@ -198,29 +186,29 @@ normally distributed.  Why should you care?
 It turns out that statisticians know a lot about the normal distribution.  Once 
 you decide that a random variable is approximately normal, you can answer all 
 sorts of questions about that variable related to probability.  Take, for 
-example, the question of, "What is the probability that a randomly chosen Dairy 
-Queen product has more than 600 calories from fat?"
+example, the question of, "What is the probability that a randomly chosen baby will
+have a birth weigth greater than 8 pounds?"
 
-If we assume that the calories from fat from Dairy Queen's menu are normally 
+Since we assume that the birth `weight` is normally 
 distributed (a very close approximation is also okay), we can find this probability
 by calculating a Z score and consulting a Z table (also called a normal probability
 table).  In R, this is done in one step with the function `pnorm()`.
 
-```{r pnorm}
+```{r}
 1 - pnorm(q = 8, mean = mean_nc, sd = sd_nc)
 ```
 
 Note that the function `pnorm()` gives the area under the normal curve below a 
 given value, `q`, with a given mean and standard deviation.  Since we're 
-interested in the probability that a Dairy Queen item has more than 600 calories
+interested in the probability that a baby is heavier than 8 pounds
 from fat, we have to take one minus that probability.
 
 Assuming a normal distribution has allowed us to calculate a theoretical 
 probability.  If we want to calculate the probability empirically, we simply 
-need to determine how many observations fall above 600 then divide this number 
+need to determine how many babies have a weight greater than 8 then divide this number 
 by the total sample size.
 
-```{r probability}
+```{r}
 nc_ft %>% 
   filter(weight > 8) %>%
   summarise(percent = n() / nrow(nc_ft))
@@ -230,56 +218,46 @@ Although the probabilities are not exactly the same, they are reasonably close.
 The closer that your distribution is to being normal, the more accurate the 
 theoretical probabilities will be.
 
-* * *
+5.  Use both methods above to determine the probability that for a birth `weight` less than 7 pounds. Comment on why they are differeny (Hint: look at your graphics)
+
 
 ## More Practice
 
-`gained` and `mage`
+We have just created a procedure to assess a quantitative variable if follows a Normal Distribution.
 
-```{r}
-ggplot(nc_ft, aes(gained))+
-  geom_histogram(binwidth=5,color="white", fill="steelblue")+
-  scale_x_continuous(limits=c(0,100), breaks=c(seq(0,100, by=5)))
+**Step 1**: Graph a density histogram and a normal curve (with mean and sd generated from data set)
+```{r, echo=F, warning=F}
+mean_nc = mean(nc_ft$weight)
+sd_nc = sd(nc_ft$weight)
+ggplot(nc_ft, aes(x=weight)) +
+  geom_blank() +
+  geom_histogram(binwidth=0.25,color="white", fill="lightblue", aes(y=..density..)) +
+  stat_function(fun = dnorm, args = c(mean = mean_nc, sd = sd_nc), col = "tomato")+
+  scale_x_continuous(limits=c(3, 12), breaks=c(seq(3,12, by=1)))+
+  geom_vline(xintercept=c(mean_nc,mean_nc+sd_nc, mean_nc+2*sd_nc, mean_nc+3*sd_nc, mean_nc-sd_nc, mean_nc-2*sd_nc, mean_nc-3*sd_nc), linetype="dashed")
 ```
 
-6.  Write out two probability questions that you would like to answer about any 
-    of the restaurants in this dataset.  Calculate those probabilities using both
-    the theoretical normal distribution as well as the empirical distribution 
-    (four probabilities in all).  Which one had a closer agreement between the 
-    two methods?
-    
-7.  Now let's consider some of the other variables in the dataset.  Out of all the
-    different restaurants, which ones' distribution is the closest to normal for sodium?
-   
-8.  Note that some of the normal probability plots for sodium distributions seem
-    to have a stepwise pattern. why do you think this might be the case?
-
-9.  As you can see, normal probability plots can be used both to assess 
-    normality and visualize skewness.  Make a normal probability plot for the total
-    carbohydrates from a restaurant of your choice.  Based on this normal 
-    probability plot, is this variable left skewed, symmetric, or right skewed?  
-    Use a histogram to confirm your findings.
-
-```{r}
-ggplot(mlb_curent, aes(BA))+
-  geom_histogram(binwidth= .01, color="white", fill="steelblue")+
-  geom_density()
+**Step 2**:  Graph a QQ Plot of the actual data and simulated normal data
+```{r, echo=F}
+sim_norm <- data.frame(sim_values = rnorm(n = nrow(nc_ft), mean = mean_nc, sd = sd_nc))
+ggplot(data = nc_ft, aes(sample = weight)) + 
+  geom_point(stat = "qq", color = "steelblue", size=0.5)+
+  geom_line(data=sim_norm,aes(sample=sim_values),stat = "qq", color="tomato")
 ```
 
-```{r}
-p<-ggplot(mlb_curent, aes(BA))+
-  geom_histogram(binwidth=0.005, color="white", fill="steelblue")
-ggplotly(p)
-```
+**Decision**: If normal curve and simulated normal data are similar, the data can be approximated by a normal distribution.
 
-```{r}
-ggplot(mlb_curent, aes(BA))+
-  geom_dotplot(binwidth=0.005)
-```
 
+## Practice on your own
+
+Analysize `mage` and `gained` using the 2 steps above and decide if they can be modeled with the Normal Distribution.  
+
+6.  Complete the analysis outlined above for `mage` and make a decision if `mage` can be modeled with the Normal Distribution (i.e., Step 1 and Step 2).  Test your decision by calculating the probability that a mother's age is less than 21.
+
+7.  Complete the analysis outlined above for `gained` and make a decision if `gained` can be modeled with the Normal Distribution.  Test your decision by calculating the probability that a mother's weight gained is more than 40.
 
 
 <div id="license">
-This is a product of OpenIntro that is released under a 
+This is an adaption of an OpenIntro Labs that is released under a 
 [Creative Commons Attribution-ShareAlike 3.0 Unported](http://creativecommons.org/licenses/by-sa/3.0). 
 </div>
