@@ -11,8 +11,6 @@ output:
 
 ```{r echo=F, message=F}
 library(tidyverse)
-library(openintro)
-library(plotly)
 ```
 
 In this lab, you'll investigate the probability distribution that is most central
@@ -37,7 +35,7 @@ A Normal Distribution with mean of 80 and standard deviation of 5.
 ```
 
 
-Four Normal Distributions with same means of 80, and standard deviations of 5, 10 and 20.
+Three Normal Distributions with same means of 80, and standard deviations of 5, 10 and 20.
 ```{r echo=F,warning=FALSE}
   ggplot(data = data.frame(x = c(0, 20)), aes(x)) +
   geom_blank() +
@@ -226,8 +224,8 @@ table).  In R, this is done in one step with the function `pnorm()`.
 
 Note that the function `pnorm()` gives the area under the normal curve below a 
 given value, `q`, with a given mean and standard deviation.  Since we're 
-interested in the probability that a baby is heavier than 8 pounds
-from fat, we have to take one minus that probability.
+interested in the probability that a baby is heavier than 8 pounds, we have to 
+take one minus that probability.
 
 Assuming a normal distribution has allowed us to calculate a theoretical 
 probability.  If we want to calculate the probability empirically, we simply 

@@ -2,16 +2,18 @@
 title: "Lab 4 Normal Distribution"
 author: "your name"
 output:
+  pdf_document:
+    
+    toc: no
   html_document:
     css: lab.css
     highlight: pygments
     theme: cerulean
 ---
 
+
 ```{r echo=F, message=F}
 library(tidyverse)
-library(openintro)
-library(plotly)
 ```
 
 ```{r, message=F, echo=FALSE}
